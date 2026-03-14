@@ -1,0 +1,26 @@
+<svg width="54" height="54" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hexágono externo -->
+  <path d="M50 6 L88 28 L88 72 L50 94 L12 72 L12 28 Z"
+        fill="rgba(0,153,102,0.08)" stroke="#009966" stroke-width="3.5" stroke-linejoin="round"/>
+  <!-- Hexágono interno sutil -->
+  <path d="M50 18 L78 34 L78 66 L50 82 L22 66 L22 34 Z"
+        stroke="#a8c520" stroke-width="1.2" stroke-linejoin="round" opacity="0.3" fill="none"/>
+  <!-- Montanha preenchimento -->
+  <path d="M22 68 L38 42 L50 54 L62 36 L78 68 Z"
+        fill="rgba(0,153,102,0.18)"/>
+  <!-- Montanha contorno -->
+  <path d="M22 68 L38 42 L50 54 L62 36 L78 68"
+        stroke="#009966" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round" fill="none"/>
+  <!-- Pico verde-limão -->
+  <path d="M62 36 L57 44 L67 44 Z" fill="#a8c520"/>
+  <!-- Cabo picareta esquerda -->
+  <line x1="32" y1="80" x2="46" y2="66" stroke="#a8c520" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- Cabeça picareta esquerda -->
+  <path d="M46 66 L51 60 C53 57 58 57 59 60 C60 63 57 66 54 66 L46 66Z" fill="#a8c520"/>
+  <!-- Cabo picareta direita -->
+  <line x1="68" y1="80" x2="54" y2="66" stroke="#009966" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- Cabeça picareta direita -->
+  <path d="M54 66 L49 60 C47 57 42 57 41 60 C40 63 43 66 46 66 L54 66Z" fill="#009966"/>
+  <!-- Losango central (gema) -->
+  <path d="M50 57 L53 62 L50 67 L47 62 Z" fill="white" opacity="0.7"/>
+</svg>

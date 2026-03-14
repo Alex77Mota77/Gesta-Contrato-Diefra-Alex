@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Medições | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+  <style>
+    .diff-field  { background:rgba(0,200,83,0.05)!important; border-color:rgba(0,200,83,0.2)!important; cursor:default!important; font-weight:700!important; }
+    .diff-pos    { color:#00e676!important; }
+    .diff-neg    { color:#ff4757!important; }
+    .diff-zero   { color:var(--muted)!important; }
+    .td-pos      { color:#00e676; font-weight:700; }
+    .td-neg      { color:#ff4757; font-weight:700; }
+
+    /* Bloco saldo do contrato selecionado */
+    .saldo-info {
+      display:none; margin-top:8px; padding:12px 16px;
+      background:rgba(0,200,83,0.06); border:1px solid rgba(0,200,83,0.2);
+      border-radius:var(--r-md); font-size:13px;
+      gap:24px;
+    }
+    .saldo-info.show { display:flex; flex-wrap:wrap; }
+    .saldo-info-item { display:flex; flex-direction:column; gap:3px; }
+    .saldo-info-label { font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+    .saldo-info-value { font-family:var(--font-display); font-size:15px; font-weight:800; }
+
+    .section-sep {
+      font-size:11px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase;
+      color:var(--accent); display:flex; align-items:center; gap:8px; margin:20px 0 14px;
+    }
+    .section-sep:first-child { margin-top:0; }
+    .section-sep::after { content:''; flex:1; height:1px; background:var(--border); }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra"/>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">DIEFRA</div>
+        <div class="sidebar-brand-sub">UEN300</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Principal</span>
+      <a href="inicio.html"      class="nav-item" data-page="inicio">      <span class="nav-icon">🏠</span> Início</a>
+      <span class="nav-section-label">Gestão</span>
+      <a href="contratos.html"   class="nav-item" data-page="contratos">   <span class="nav-icon">📄</span> Contratos</a>
+      <a href="medicoes.html"    class="nav-item" data-page="medicoes">    <span class="nav-icon">📐</span> Medições</a>
+      <a href="veiculos.html"    class="nav-item" data-page="veiculos">    <span class="nav-icon">🚗</span> Veículos</a>
+      <a href="suprimentos.html" class="nav-item" data-page="suprimentos"> <span class="nav-icon">📦</span> Suprimentos</a>
+      <span class="nav-section-label">Administração</span>
+      <a href="usuarios.html"    class="nav-item" data-page="usuarios">    <span class="nav-icon">👥</span> Usuários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebarAvatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarNome">Usuário</div>
+          <div class="sidebar-user-role">UEN300</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout">⬅ Sair do sistema</button>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="page-eyebrow">Gestão · UEN300</div>
+          <div class="page-title">Medições</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-secondary" id="btnExportar">⬇ Exportar CSV</button>
+        <button class="btn btn-primary"   id="btnNova">+ Nova Medição</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- Métricas -->
+      <div class="metrics-row" style="margin-bottom:24px">
+        <div class="metric-card mc-blue">
+          <div class="metric-icon-wrap">📐</div>
+          <div><div class="metric-label">Total</div><div class="metric-value" id="metTotal">—</div></div>
+        </div>
+        <div class="metric-card mc-green">
+          <div class="metric-icon-wrap">💰</div>
+          <div><div class="metric-label">Total Medido</div><div class="metric-value" id="metMedido" style="font-size:18px">—</div></div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-icon-wrap">📋</div>
+          <div><div class="metric-label">Total Previsto</div><div class="metric-value" id="metPrevisto" style="font-size:18px">—</div></div>
+        </div>
+        <div class="metric-card mc-purple">
+          <div class="metric-icon-wrap">📊</div>
+          <div><div class="metric-label">Diferença Total</div><div class="metric-value" id="metDiff" style="font-size:18px">—</div></div>
+        </div>
+      </div>
+
+      <!-- Tabela -->
+      <div class="section-card">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="busca" placeholder="Buscar por obra, contrato, período..."/>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Contrato</th>
+                <th>Nº Obra</th>
+                <th>Centro Custo</th>
+                <th>Período</th>
+                <th>Nº Med.</th>
+                <th>Med. Prevista</th>
+                <th>Valor Medido</th>
+                <th>Diferença</th>
+                <th>Dt. Envio Med.</th>
+                <th>Dt. Ordem Fat.</th>
+                <th>Dt. Envio Fat.</th>
+                <th>Observação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="13"><div class="empty-state">
+                <div class="empty-icon">📐</div>
+                <div class="empty-title">Nenhuma medição cadastrada</div>
+                <div class="empty-sub">Clique em "+ Nova Medição" para começar</div>
+              </div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA / EDITAR MEDIÇÃO -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal" style="width:min(740px,96vw)">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Nova Medição</h3>
+      <button class="modal-close" id="btnFechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fId"/>
+
+      <!-- BLOCO 1: Contrato -->
+      <div class="section-sep">📄 Contrato</div>
+      <div class="form-group">
+        <label class="form-label">Selecionar Contrato <span style="color:var(--accent)">*</span></label>
+        <select class="form-select" id="fContratoId" onchange="onContratoChange()">
+          <option value="">— Selecione o contrato —</option>
+        </select>
+        <!-- Painel com saldo do contrato selecionado -->
+        <div class="saldo-info" id="saldoInfo">
+          <div class="saldo-info-item">
+            <span class="saldo-info-label">Valor Total</span>
+            <span class="saldo-info-value" id="siValorTotal">—</span>
+          </div>
+          <div class="saldo-info-item">
+            <span class="saldo-info-label">Total Medido</span>
+            <span class="saldo-info-value" id="siTotalMedido">—</span>
+          </div>
+          <div class="saldo-info-item">
+            <span class="saldo-info-label">Saldo Disponível</span>
+            <span class="saldo-info-value" id="siSaldo">—</span>
+          </div>
+          <div class="saldo-info-item">
+            <span class="saldo-info-label">Fornecedor</span>
+            <span class="saldo-info-value" id="siFornecedor" style="font-size:13px">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCO 2: Identificação -->
+      <div class="section-sep">🏗 Identificação da Obra</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nº da Obra <span style="color:var(--accent)">*</span></label>
+          <input class="form-input" id="fNumObra" placeholder="Ex: 2025-042"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Centro de Custo <span style="color:var(--accent)">*</span></label>
+          <input class="form-input" id="fCentroCusto" placeholder="Ex: CC-0314"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Nome do Contrato</label>
+          <input class="form-input" id="fNomeContrato" placeholder="Preenchido automaticamente ao selecionar o contrato" readonly
+                 style="background:rgba(255,255,255,0.03);cursor:default"/>
+        </div>
+      </div>
+
+      <!-- BLOCO 3: Medição -->
+      <div class="section-sep">📐 Dados da Medição</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Período da Medição <span style="color:var(--accent)">*</span></label>
+          <input class="form-input" id="fPeriodo" placeholder="Ex: Maio/2025"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nº da Medição <span style="color:var(--accent)">*</span></label>
+          <input class="form-input" id="fNumMedicao" placeholder="Ex: 003"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data Envio da Medição</label>
+          <input class="form-input" id="fDtEnvioMed" type="date"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Medição Prevista (R$) <span style="color:var(--accent)">*</span></label>
+          <input class="form-input" id="fMedPrevista" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcDiff()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor Medido (R$) <span style="color:var(--accent)">*</span></label>
+          <input class="form-input" id="fValorMedido" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcDiff()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Diferença <span style="font-size:10px;color:var(--muted)">(automático)</span></label>
+          <input class="form-input diff-field" id="fDiferenca" readonly placeholder="Calculado automaticamente"/>
+        </div>
+      </div>
+
+      <!-- BLOCO 4: Fatura -->
+      <div class="section-sep">🧾 Dados da Fatura</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Data Ordem de Fatura</label>
+          <input class="form-input" id="fDtOrdemFat" type="date"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data Envio da Fatura</label>
+          <input class="form-input" id="fDtEnvioFat" type="date"/>
+        </div>
+      </div>
+
+      <!-- BLOCO 5: Observação -->
+      <div class="section-sep">💬 Observação</div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="fObs" rows="2"
+          placeholder="Observações, pendências ou justificativas..."></textarea>
+      </div>
+
+      <div class="form-error" id="formErro"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+      <button class="btn btn-primary"   id="btnSalvar">💾 Salvar Medição</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+APP.initSidebar('medicoes');
+APP.initModal('modal', ['btnFechar', 'btnCancelar']);
+
+let medicoes  = JSON.parse(localStorage.getItem('uen300_medicoes') || '[]');
+let contratos = [];
+let editId    = null;
+
+// Formatadores
+function moeda(v) {
+  if (v == null || v === '' || isNaN(v)) return '—';
+  return Number(v).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+}
+function fmtData(d) {
+  if (!d) return '—';
+  return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
+}
+
+// Diferença automática
+function calcDiff() {
+  const prev = parseFloat(document.getElementById('fMedPrevista').value) || 0;
+  const med  = parseFloat(document.getElementById('fValorMedido').value) || 0;
+  const diff = med - prev;
+  const el   = document.getElementById('fDiferenca');
+  if (!prev && !med) { el.value = ''; el.className = 'form-input diff-field'; return; }
+  el.value     = diff.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  el.className = 'form-input diff-field ' + (diff > 0 ? 'diff-pos' : diff < 0 ? 'diff-neg' : 'diff-zero');
+}
+
+// Ao selecionar contrato: preenche nome e mostra saldo
+function onContratoChange() {
+  const sel  = document.getElementById('fContratoId');
+  const id   = sel.value;
+  const info = document.getElementById('saldoInfo');
+
+  if (!id) { info.classList.remove('show'); document.getElementById('fNomeContrato').value = ''; return; }
+
+  const c = contratos.find(x => String(x.id) === String(id));
+  if (!c) return;
+
+  document.getElementById('fNomeContrato').value = c.titulo || c.nome_contrato || '';
+
+  const valorTotal  = parseFloat(c.valor_total  || c.valor  || 0);
+  const totalMedido = parseFloat(c.total_medido || 0);
+  const saldo       = parseFloat(c.saldo != null ? c.saldo : valorTotal - totalMedido);
+
+  document.getElementById('siValorTotal').textContent   = moeda(valorTotal);
+  document.getElementById('siTotalMedido').textContent  = moeda(totalMedido);
+  document.getElementById('siFornecedor').textContent   = c.fornecedor_nome || c.fornecedor || '—';
+
+  const siSaldo = document.getElementById('siSaldo');
+  siSaldo.textContent = moeda(saldo);
+  siSaldo.style.color = saldo < 0 ? '#ff4757' : saldo < valorTotal * 0.1 ? '#ffa502' : '#00e676';
+
+  info.classList.add('show');
+}
+
+// Carrega contratos para o dropdown
+async function carregarContratos() {
+  try {
+    contratos = await APP.api('GET', '/contratos');
+  } catch(e) {
+    contratos = JSON.parse(localStorage.getItem('uen300_contratos') || '[]');
+  }
+  const sel = document.getElementById('fContratoId');
+  sel.innerHTML = '<option value="">— Selecione o contrato —</option>' +
+    contratos.map(c =>
+      `<option value="${c.id}">${c.numero} — ${c.titulo}</option>`
+    ).join('');
+}
+
+// Carrega medições
+async function carregarMedicoes() {
+  try {
+    medicoes = await APP.api('GET', '/medicoes');
+  } catch(e) {
+    medicoes = JSON.parse(localStorage.getItem('uen300_medicoes') || '[]');
+  }
+  filtrar();
+}
+
+// Render tabela
+function render(lista) {
+  const totPrev = medicoes.reduce((s,d) => s+(parseFloat(d.medicao_prevista||d.medPrevista)||0), 0);
+  const totMed  = medicoes.reduce((s,d) => s+(parseFloat(d.valor_medido   ||d.valorMedido )||0), 0);
+  const totDiff = totMed - totPrev;
+
+  document.getElementById('metTotal').textContent    = medicoes.length;
+  document.getElementById('metMedido').textContent   = moeda(totMed);
+  document.getElementById('metPrevisto').textContent = moeda(totPrev);
+  const dEl = document.getElementById('metDiff');
+  dEl.textContent = moeda(totDiff);
+  dEl.style.color = totDiff > 0 ? '#00e676' : totDiff < 0 ? '#ff4757' : '';
+
+  const tbody = document.getElementById('tbody');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><div class="empty-icon">📐</div><div class="empty-title">Nenhuma medição encontrada</div><div class="empty-sub">Clique em "+ Nova Medição" para começar</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(m => {
+    // Suporta tanto API (snake_case) quanto localStorage (camelCase)
+    const medPrev  = parseFloat(m.medicao_prevista || m.medPrevista || 0);
+    const valMed   = parseFloat(m.valor_medido     || m.valorMedido  || 0);
+    const diff     = valMed - medPrev;
+    const dc       = diff > 0 ? 'td-pos' : diff < 0 ? 'td-neg' : '';
+    const numObra  = m.num_obra      || m.numObra      || '—';
+    const cc       = m.centro_custo  || m.centroCusto  || '—';
+    const periodo  = m.periodo_medicao||m.periodo      || '—';
+    const numMed   = m.num_medicao   || m.numMedicao   || '—';
+    const contNome = m.contrato_numero || m.nome_contrato || m.nomeContrato || '—';
+    const dtEnv    = m.data_envio_medicao || m.dtEnvioMed || '';
+    const dtOrdem  = m.data_ordem_fatura  || m.dtOrdemFat || '';
+    const dtFat    = m.data_envio_fatura  || m.dtEnvioFat || '';
+    const obs      = m.observacao || m.obs || '';
+
+    return `<tr>
+      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px" title="${contNome}">
+        <strong style="color:var(--accent)">${contNome}</strong>
+      </td>
+      <td><strong style="font-family:var(--font-display);color:var(--text2)">${numObra}</strong></td>
+      <td class="td-muted">${cc}</td>
+      <td class="td-muted">${periodo}</td>
+      <td style="text-align:center;font-weight:700">${numMed}</td>
+      <td class="td-muted">${moeda(medPrev)}</td>
+      <td style="font-weight:700">${moeda(valMed)}</td>
+      <td class="${dc}">${diff !== 0 ? moeda(diff) : '—'}</td>
+      <td class="td-muted" style="font-size:12px">${fmtData(dtEnv)}</td>
+      <td class="td-muted" style="font-size:12px">${fmtData(dtOrdem)}</td>
+      <td class="td-muted" style="font-size:12px">${fmtData(dtFat)}</td>
+      <td class="td-muted" style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px" title="${obs}">${obs||'—'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost  btn-sm" onclick="editar('${m.id}')">✏</button>
+        <button class="btn btn-danger btn-sm" onclick="excluir('${m.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrar() {
+  const t = document.getElementById('busca').value.toLowerCase();
+  render(!t ? medicoes : medicoes.filter(m => {
+    const campos = [
+      m.num_obra||m.numObra, m.centro_custo||m.centroCusto,
+      m.nome_contrato||m.nomeContrato, m.periodo_medicao||m.periodo,
+      m.num_medicao||m.numMedicao, m.contrato_numero
+    ];
+    return campos.some(c => (c||'').toLowerCase().includes(t));
+  }));
+}
+
+document.getElementById('busca').addEventListener('input', filtrar);
+
+// Abrir modal nova medição
+document.getElementById('btnNova').addEventListener('click', () => {
+  editId = null;
+  document.getElementById('modalTitulo').textContent = 'Nova Medição';
+  document.getElementById('btnSalvar').textContent   = '💾 Salvar Medição';
+  ['fId','fNumObra','fCentroCusto','fNomeContrato','fPeriodo','fNumMedicao',
+   'fMedPrevista','fValorMedido','fDtEnvioMed','fDtOrdemFat','fDtEnvioFat','fObs']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('fContratoId').value = '';
+  document.getElementById('saldoInfo').classList.remove('show');
+  const difEl = document.getElementById('fDiferenca');
+  difEl.value = ''; difEl.className = 'form-input diff-field';
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+  setTimeout(() => document.getElementById('fContratoId').focus(), 150);
+});
+
+// Editar
+function editar(id) {
+  const m = medicoes.find(x => String(x.id) === String(id));
+  if (!m) return;
+  editId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar Medição';
+  document.getElementById('btnSalvar').textContent   = '💾 Atualizar Medição';
+
+  document.getElementById('fId').value          = m.id;
+  document.getElementById('fContratoId').value  = m.contrato_id || '';
+  document.getElementById('fNumObra').value     = m.num_obra      || m.numObra      || '';
+  document.getElementById('fCentroCusto').value = m.centro_custo  || m.centroCusto  || '';
+  document.getElementById('fNomeContrato').value= m.nome_contrato || m.nomeContrato || '';
+  document.getElementById('fPeriodo').value     = m.periodo_medicao||m.periodo      || '';
+  document.getElementById('fNumMedicao').value  = m.num_medicao   || m.numMedicao   || '';
+  document.getElementById('fMedPrevista').value = m.medicao_prevista||m.medPrevista || '';
+  document.getElementById('fValorMedido').value = m.valor_medido   ||m.valorMedido  || '';
+  document.getElementById('fDtEnvioMed').value  = m.data_envio_medicao||m.dtEnvioMed|| '';
+  document.getElementById('fDtOrdemFat').value  = m.data_ordem_fatura ||m.dtOrdemFat|| '';
+  document.getElementById('fDtEnvioFat').value  = m.data_envio_fatura ||m.dtEnvioFat|| '';
+  document.getElementById('fObs').value         = m.observacao    || m.obs          || '';
+
+  calcDiff();
+  onContratoChange();
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+}
+
+// Salvar
+document.getElementById('btnSalvar').addEventListener('click', async () => {
+  const contratoId   = document.getElementById('fContratoId').value;
+  const numObra      = document.getElementById('fNumObra').value.trim();
+  const centroCusto  = document.getElementById('fCentroCusto').value.trim();
+  const nomeContrato = document.getElementById('fNomeContrato').value.trim();
+  const periodo      = document.getElementById('fPeriodo').value.trim();
+  const numMedicao   = document.getElementById('fNumMedicao').value.trim();
+  const medPrevista  = document.getElementById('fMedPrevista').value;
+  const valorMedido  = document.getElementById('fValorMedido').value;
+  const erroEl       = document.getElementById('formErro');
+
+  if (!contratoId) {
+    erroEl.textContent = 'Selecione um contrato.';
+    erroEl.classList.add('show');
+    document.getElementById('fContratoId').focus();
+    return;
+  }
+  if (!numObra || !centroCusto || !periodo || !numMedicao || !medPrevista || !valorMedido) {
+    erroEl.textContent = 'Preencha todos os campos obrigatórios (*).';
+    erroEl.classList.add('show'); return;
+  }
+
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+
+  const payload = {
+    contrato_id:        parseInt(contratoId),
+    num_obra:           numObra,
+    centro_custo:       centroCusto,
+    nome_contrato:      nomeContrato,
+    periodo_medicao:    periodo,
+    num_medicao:        numMedicao,
+    medicao_prevista:   parseFloat(medPrevista),
+    valor_medido:       parseFloat(valorMedido),
+    data_envio_medicao: document.getElementById('fDtEnvioMed').value || null,
+    data_ordem_fatura:  document.getElementById('fDtOrdemFat').value || null,
+    data_envio_fatura:  document.getElementById('fDtEnvioFat').value || null,
+    observacao:         document.getElementById('fObs').value.trim() || null,
+  };
+
+  try {
+    if (editId) {
+      await APP.api('PUT', '/medicoes/' + editId, payload);
+    } else {
+      await APP.api('POST', '/medicoes', payload);
+    }
+    APP.fecharModal('modal');
+    APP.toast(editId ? 'Medição atualizada! Saldo do contrato recalculado.' : 'Medição cadastrada! Saldo do contrato atualizado.');
+    await carregarMedicoes();
+    await carregarContratos(); // atualiza saldo no dropdown
+  } catch(e) {
+    // fallback localStorage
+    const c = contratos.find(x => String(x.id) === String(contratoId));
+    const obj = {
+      id:              editId || Date.now().toString(),
+      contrato_id:     parseInt(contratoId),
+      num_obra:        numObra, centro_custo: centroCusto,
+      nome_contrato:   nomeContrato, nomeContrato,
+      periodo_medicao: periodo, periodo,
+      num_medicao:     numMedicao, numMedicao,
+      medicao_prevista: parseFloat(medPrevista), medPrevista: parseFloat(medPrevista),
+      valor_medido:    parseFloat(valorMedido), valorMedido: parseFloat(valorMedido),
+      dtEnvioMed: document.getElementById('fDtEnvioMed').value,
+      dtOrdemFat: document.getElementById('fDtOrdemFat').value,
+      dtEnvioFat: document.getElementById('fDtEnvioFat').value,
+      obs: document.getElementById('fObs').value,
+      contrato_numero: c ? c.numero : '',
+    };
+    if (editId) { medicoes = medicoes.map(d => String(d.id)===String(editId) ? obj : d); }
+    else        { medicoes.unshift(obj); }
+    localStorage.setItem('uen300_medicoes', JSON.stringify(medicoes));
+    // Atualiza saldo no localStorage de contratos
+    if (c) {
+      const allContratos = JSON.parse(localStorage.getItem('uen300_contratos') || '[]');
+      const totalMed = medicoes
+        .filter(m => String(m.contrato_id) === String(contratoId))
+        .reduce((s, m) => s + (parseFloat(m.valor_medido||m.valorMedido)||0), 0);
+      const updated = allContratos.map(x =>
+        String(x.id) === String(contratoId)
+          ? {...x, total_medido: totalMed, saldo: (parseFloat(x.valor_total||x.valor)||0) - totalMed}
+          : x
+      );
+      localStorage.setItem('uen300_contratos', JSON.stringify(updated));
+      contratos = contratos.map(x =>
+        String(x.id) === String(contratoId)
+          ? {...x, total_medido: totalMed, saldo: (parseFloat(x.valor_total||x.valor)||0) - totalMed}
+          : x
+      );
+    }
+    APP.fecharModal('modal');
+    APP.toast(editId ? 'Medição atualizada!' : 'Medição cadastrada!');
+    filtrar();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = editId ? '💾 Atualizar Medição' : '💾 Salvar Medição';
+  }
+});
+
+// Excluir
+async function excluir(id) {
+  const m = medicoes.find(x => String(x.id) === String(id));
+  if (!confirm(`Excluir a medição "${m?.num_medicao||m?.numMedicao}" — Obra "${m?.num_obra||m?.numObra}"?`)) return;
+  try {
+    await APP.api('DELETE', '/medicoes/' + id);
+    APP.toast('Medição removida. Saldo do contrato atualizado.', 'error');
+    await carregarMedicoes();
+    await carregarContratos();
+  } catch(e) {
+    medicoes = medicoes.filter(x => String(x.id) !== String(id));
+    localStorage.setItem('uen300_medicoes', JSON.stringify(medicoes));
+    filtrar();
+    APP.toast('Medição removida.', 'error');
+  }
+}
+
+// Exportar CSV
+document.getElementById('btnExportar').addEventListener('click', () => {
+  if (!medicoes.length) { APP.toast('Nenhum registro para exportar.', 'error'); return; }
+  const cols = ['Contrato','No Obra','Centro Custo','Periodo','No Medicao',
+    'Medicao Prevista','Valor Medido','Diferenca',
+    'Dt Envio Med','Dt Ordem Fat','Dt Envio Fat','Observacao'];
+  const linhas = medicoes.map(m => {
+    const medPrev = parseFloat(m.medicao_prevista||m.medPrevista||0);
+    const valMed  = parseFloat(m.valor_medido   ||m.valorMedido ||0);
+    return [
+      '"'+(m.contrato_numero||m.nome_contrato||m.nomeContrato||'').replace(/"/g,'""')+'"',
+      m.num_obra||m.numObra, m.centro_custo||m.centroCusto,
+      m.periodo_medicao||m.periodo, m.num_medicao||m.numMedicao,
+      medPrev.toFixed(2), valMed.toFixed(2), (valMed-medPrev).toFixed(2),
+      fmtData(m.data_envio_medicao||m.dtEnvioMed),
+      fmtData(m.data_ordem_fatura ||m.dtOrdemFat),
+      fmtData(m.data_envio_fatura ||m.dtEnvioFat),
+      '"'+(m.observacao||m.obs||'').replace(/"/g,'""')+'"'
+    ].join(';');
+  });
+  const csv  = '\uFEFF' + [cols.join(';'), ...linhas].join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const a    = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: 'medicoes_' + new Date().toISOString().slice(0,10) + '.csv'
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+  APP.toast('CSV exportado!');
+});
+
+// Iniciar
+(async () => {
+  await carregarContratos();
+  await carregarMedicoes();
+})();
+</script>
+</body>
+</html>

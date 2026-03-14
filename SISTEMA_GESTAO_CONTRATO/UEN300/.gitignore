@@ -1,0 +1,24 @@
+# ============================================================
+#  UEN300 — .gitignore
+#  Arquivos que NÃO devem ser enviados ao repositório Git
+# ============================================================
+
+# Variáveis de ambiente (contém senhas!)
+.env
+
+# Dependências Node (se usar backend)
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# VS Code (configs pessoais)
+.vscode/settings.json
+
+# Uploads temporários
+uploads/temp/

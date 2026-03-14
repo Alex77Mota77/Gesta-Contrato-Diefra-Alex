@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Dashboard | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body class="dashboard-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra" class="sidebar-logo-icon"/>
+      <div>
+        <span class="sidebar-brand">DIEFRA</span>
+        <span class="sidebar-sys">UEN300</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item active"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="contratos.html"   class="nav-item"><span class="nav-icon">📄</span> Contratos</a>
+      <a href="medicoes.html"    class="nav-item"><span class="nav-icon">📐</span> Medições</a>
+      <a href="fornecedores.html" class="nav-item"><span class="nav-icon">🏢</span> Fornecedores</a>
+      <a href="usuarios.html" class="nav-item"><span class="nav-icon">👥</span> Usuários</a>
+    </nav>
+    <button class="sidebar-logout" id="btnLogout"><span>⬅</span> Sair</button>
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Visão geral do sistema</p>
+      </div>
+      <div class="topbar-user">
+        <span class="user-avatar" id="userAvatar">U</span>
+        <span class="user-name"  id="userName">Usuário</span>
+      </div>
+    </header>
+
+    <!-- Métricas -->
+    <section class="metrics">
+      <div class="metric-card">
+        <div class="metric-icon green">📄</div>
+        <div>
+          <p class="metric-label">Contratos Ativos</p>
+          <h2 class="metric-value" id="metContratosAtivos">—</h2>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon yellow">⏳</div>
+        <div>
+          <p class="metric-label">Vencendo em 30 dias</p>
+          <h2 class="metric-value" id="metVencendo">—</h2>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon blue">🏢</div>
+        <div>
+          <p class="metric-label">Fornecedores</p>
+          <h2 class="metric-value" id="metFornecedores">—</h2>
+        </div>
+      </div>
+      <div class="metric-card" onclick="window.location.href='usuarios.html'" style="cursor:pointer">
+        <div class="metric-icon purple">👥</div>
+        <div>
+          <p class="metric-label">Usuários Ativos</p>
+          <h2 class="metric-value" id="metUsuarios">—</h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabela de Usuários -->
+    <section class="table-section">
+      <div class="table-header">
+        <div>
+          <h2 class="section-title">👥 Usuários Cadastrados</h2>
+          <p class="section-sub">Gerencie os acessos ao sistema</p>
+        </div>
+        <button class="btn-new" id="btnNovoUsuario">+ Novo Usuário</button>
+      </div>
+
+      <div class="table-search">
+        <input type="text" id="buscaUsuario" placeholder="🔍  Buscar por nome, usuário ou e-mail..."/>
+      </div>
+
+      <div class="table-wrap">
+        <table id="tabelaUsuarios">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Usuário</th>
+              <th>E-mail</th>
+              <th>Cadastrado em</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="corpoTabela">
+            <tr><td colspan="6" class="loading-row">Carregando usuários...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalUsuario" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitulo">Novo Usuário</h3>
+        <button class="modal-close" id="btnFecharModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modalId"/>
+
+        <div class="form-group">
+          <label>Nome completo</label>
+          <input type="text" id="modalNome" placeholder="Ex: João Silva"/>
+        </div>
+
+        <div class="form-group">
+          <label>Usuário</label>
+          <input type="text" id="modalUsuario_campo" placeholder="Ex: joao.silva"/>
+        </div>
+
+        <div class="form-group" id="grupoSenha">
+          <label>Senha</label>
+          <input type="password" id="modalSenha" placeholder="Mínimo 6 caracteres"/>
+        </div>
+
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="modalEmail" placeholder="joao@diefra.com.br"/>
+        </div>
+
+        <p class="modal-erro" id="modalErro"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+        <button class="btn-salvar"   id="btnSalvar">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

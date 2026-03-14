@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Contratos | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+  <style>
+    /* Barra de progresso do saldo */
+    .saldo-bar-wrap {
+      display: flex; flex-direction: column; gap: 4px; min-width: 120px;
+    }
+    .saldo-bar-track {
+      height: 6px; border-radius: 99px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .saldo-bar-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+    .saldo-bar-label {
+      font-size: 11px; font-weight: 700; display: flex; justify-content: space-between;
+    }
+    .saldo-ok      { color: #00e676; }
+    .saldo-warn    { color: #ffa502; }
+    .saldo-critico { color: #ff4757; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra"/>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">DIEFRA</div>
+        <div class="sidebar-brand-sub">UEN300</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Principal</span>
+      <a href="inicio.html"      class="nav-item" data-page="inicio">      <span class="nav-icon">🏠</span> Início</a>
+      <span class="nav-section-label">Gestão</span>
+      <a href="contratos.html"   class="nav-item" data-page="contratos">   <span class="nav-icon">📄</span> Contratos</a>
+      <a href="medicoes.html"    class="nav-item" data-page="medicoes">    <span class="nav-icon">📐</span> Medições</a>
+      <a href="veiculos.html"    class="nav-item" data-page="veiculos">    <span class="nav-icon">🚗</span> Veículos</a>
+      <a href="suprimentos.html" class="nav-item" data-page="suprimentos"> <span class="nav-icon">📦</span> Suprimentos</a>
+      <span class="nav-section-label">Administração</span>
+      <a href="usuarios.html"    class="nav-item" data-page="usuarios">    <span class="nav-icon">👥</span> Usuários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebarAvatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarNome">Usuário</div>
+          <div class="sidebar-user-role">UEN300</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout">⬅ Sair do sistema</button>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="page-eyebrow">Gestão · UEN300</div>
+          <div class="page-title">Contratos</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" id="btnNovo">+ Novo Contrato</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- Métricas -->
+      <div class="metrics-row" style="margin-bottom:24px">
+        <div class="metric-card mc-green">
+          <div class="metric-icon-wrap">✅</div>
+          <div><div class="metric-label">Ativos</div><div class="metric-value" id="cntAtivo">—</div></div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-icon-wrap">⏳</div>
+          <div><div class="metric-label">Pendentes</div><div class="metric-value" id="cntPendente">—</div></div>
+        </div>
+        <div class="metric-card mc-red">
+          <div class="metric-icon-wrap">⚠</div>
+          <div><div class="metric-label">Encerrados</div><div class="metric-value" id="cntEncerrado">—</div></div>
+        </div>
+        <div class="metric-card mc-blue">
+          <div class="metric-icon-wrap">📋</div>
+          <div><div class="metric-label">Total</div><div class="metric-value" id="cntTotal">—</div></div>
+        </div>
+      </div>
+
+      <!-- Tabela -->
+      <div class="section-card">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="busca" placeholder="Buscar por número, título ou fornecedor..."/>
+          </div>
+          <select class="form-select" id="filtroStatus" style="width:160px">
+            <option value="">Todos os status</option>
+            <option value="ativo">Ativo</option>
+            <option value="pendente">Pendente</option>
+            <option value="encerrado">Encerrado</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Título</th>
+                <th>Fornecedor</th>
+                <th>Valor Total</th>
+                <th>Total Medido</th>
+                <th>Saldo</th>
+                <th>Consumo</th>
+                <th>Vencimento</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="10" style="text-align:center;padding:40px;color:var(--muted)">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR CONTRATO -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Novo Contrato</h3>
+      <button class="modal-close" id="btnFechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fId"/>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Número do Contrato *</label>
+          <input class="form-input" id="fNumero" placeholder="UEN300-2025-001"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status *</label>
+          <select class="form-select" id="fStatus">
+            <option value="ativo">Ativo</option>
+            <option value="pendente">Pendente</option>
+            <option value="encerrado">Encerrado</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Título *</label>
+          <input class="form-input" id="fTitulo" placeholder="Descrição resumida do contrato"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Fornecedor *</label>
+          <input class="form-input" id="fFornecedor" placeholder="Nome ou razão social"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor Total (R$) *</label>
+          <input class="form-input" id="fValor" type="number" step="0.01" min="0" placeholder="0,00"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor Mensal (R$)</label>
+          <input class="form-input" id="fValorMensal" type="number" step="0.01" min="0" placeholder="0,00"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de Início *</label>
+          <input class="form-input" id="fInicio" type="date"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de Vencimento *</label>
+          <input class="form-input" id="fFim" type="date"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Observações</label>
+          <textarea class="form-textarea" id="fObs" placeholder="Informações adicionais..."></textarea>
+        </div>
+      </div>
+      <div class="form-error" id="formErro"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+      <button class="btn btn-primary"   id="btnSalvar">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+APP.initSidebar('contratos');
+APP.initModal('modal', ['btnFechar','btnCancelar']);
+
+let dados  = [];
+let editId = null;
+
+// Formatadores
+function moeda(v) {
+  if (v == null || v === '' || isNaN(v)) return '—';
+  return Number(v).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+}
+function fmtData(d) {
+  if (!d) return '—';
+  return new Date(d + 'T00:00:00').toLocaleDateString('pt-BR');
+}
+
+// Carrega contratos da API
+async function carregar() {
+  try {
+    dados = await APP.api('GET', '/contratos');
+    filtrar();
+  } catch(e) {
+    // fallback localStorage se API indisponivel
+    dados = JSON.parse(localStorage.getItem('uen300_contratos') || '[]');
+    filtrar();
+  }
+}
+
+// Render
+function render(lista) {
+  // Métricas
+  const counts = { ativo:0, pendente:0, encerrado:0 };
+  dados.forEach(d => { if (counts[d.status] !== undefined) counts[d.status]++; });
+  document.getElementById('cntAtivo').textContent     = counts.ativo;
+  document.getElementById('cntPendente').textContent  = counts.pendente;
+  document.getElementById('cntEncerrado').textContent = counts.encerrado;
+  document.getElementById('cntTotal').textContent     = dados.length;
+
+  const tbody = document.getElementById('tbody');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">Nenhum contrato</div><div class="empty-sub">Clique em "+ Novo Contrato" para começar</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = lista.map(c => {
+    // Saldo pode vir da API (campo saldo) ou calculado localmente
+    const valorTotal   = parseFloat(c.valor_total || c.valor  || 0);
+    const totalMedido  = parseFloat(c.total_medido || 0);
+    const saldo        = parseFloat(c.saldo != null ? c.saldo : valorTotal - totalMedido);
+    const pct          = valorTotal > 0 ? Math.min(100, (totalMedido / valorTotal * 100)) : 0;
+    const pctFmt       = pct.toFixed(1);
+
+    // Cor do saldo e barra
+    let saldoClass = 'saldo-ok';
+    let barColor   = '#00e676';
+    if (pct >= 90)      { saldoClass = 'saldo-critico'; barColor = '#ff4757'; }
+    else if (pct >= 70) { saldoClass = 'saldo-warn';    barColor = '#ffa502'; }
+
+    const fornecedorNome = c.fornecedor_nome || c.fornecedor || '—';
+    const titulo = c.titulo || '—';
+    const numero = c.numero || '—';
+
+    return `<tr>
+      <td><strong style="font-family:var(--font-display);color:var(--accent)">${numero}</strong></td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${titulo}">${titulo}</td>
+      <td class="td-muted">${fornecedorNome}</td>
+      <td class="td-muted" style="font-weight:600">${moeda(valorTotal)}</td>
+      <td class="td-muted">${totalMedido > 0 ? moeda(totalMedido) : '—'}</td>
+      <td>
+        <span class="${saldoClass}" style="font-weight:700;font-family:var(--font-display)">
+          ${moeda(saldo)}
+        </span>
+      </td>
+      <td>
+        <div class="saldo-bar-wrap">
+          <div class="saldo-bar-track">
+            <div class="saldo-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+          </div>
+          <div class="saldo-bar-label">
+            <span style="color:var(--muted)">${pctFmt}% usado</span>
+            <span class="${saldoClass}">${(100-pct).toFixed(1)}% livre</span>
+          </div>
+        </div>
+      </td>
+      <td class="td-muted">${fmtData(c.data_fim || c.fim)}</td>
+      <td><span class="badge badge-${c.status}">${c.status}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost  btn-sm" title="Editar"    onclick="editar('${c.id}')">✏</button>
+        <button class="btn btn-danger btn-sm" title="Excluir"   onclick="excluir('${c.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrar() {
+  const t = document.getElementById('busca').value.toLowerCase();
+  const s = document.getElementById('filtroStatus').value;
+  render(dados.filter(d => {
+    const numero     = (d.numero     || '').toLowerCase();
+    const titulo     = (d.titulo     || '').toLowerCase();
+    const fornecedor = (d.fornecedor_nome || d.fornecedor || '').toLowerCase();
+    return (!t || numero.includes(t) || titulo.includes(t) || fornecedor.includes(t)) &&
+           (!s || d.status === s);
+  }));
+}
+
+document.getElementById('busca').addEventListener('input', filtrar);
+document.getElementById('filtroStatus').addEventListener('change', filtrar);
+
+// Abrir modal novo
+document.getElementById('btnNovo').addEventListener('click', () => {
+  editId = null;
+  document.getElementById('modalTitulo').textContent = 'Novo Contrato';
+  ['fId','fNumero','fTitulo','fFornecedor','fValor','fValorMensal','fInicio','fFim','fObs']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('fStatus').value = 'ativo';
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+});
+
+// Editar
+function editar(id) {
+  const c = dados.find(x => String(x.id) === String(id));
+  if (!c) return;
+  editId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar Contrato';
+  document.getElementById('fId').value          = c.id;
+  document.getElementById('fNumero').value      = c.numero       || '';
+  document.getElementById('fTitulo').value      = c.titulo       || '';
+  document.getElementById('fFornecedor').value  = c.fornecedor_nome || c.fornecedor || '';
+  document.getElementById('fValor').value       = c.valor_total  || c.valor || '';
+  document.getElementById('fValorMensal').value = c.valor_mensal || c.valorMensal || '';
+  document.getElementById('fInicio').value      = c.data_inicio  || c.inicio || '';
+  document.getElementById('fFim').value         = c.data_fim     || c.fim || '';
+  document.getElementById('fObs').value         = c.observacoes  || c.obs || '';
+  document.getElementById('fStatus').value      = c.status;
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+}
+
+// Salvar
+document.getElementById('btnSalvar').addEventListener('click', async () => {
+  const numero     = document.getElementById('fNumero').value.trim();
+  const titulo     = document.getElementById('fTitulo').value.trim();
+  const fornecedor = document.getElementById('fFornecedor').value.trim();
+  const valor      = document.getElementById('fValor').value;
+  const inicio     = document.getElementById('fInicio').value;
+  const fim        = document.getElementById('fFim').value;
+  const erroEl     = document.getElementById('formErro');
+
+  if (!numero || !titulo || !fornecedor || !valor || !inicio || !fim) {
+    erroEl.textContent = 'Preencha os campos obrigatórios (*).';
+    erroEl.classList.add('show'); return;
+  }
+
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+
+  try {
+    // Tenta usar a API
+    if (editId) {
+      await APP.api('PUT', '/contratos/' + editId, {
+        numero, titulo, valor_total: parseFloat(valor),
+        valor_mensal: parseFloat(document.getElementById('fValorMensal').value) || null,
+        data_inicio: inicio, data_fim: fim,
+        status: document.getElementById('fStatus').value,
+        observacoes: document.getElementById('fObs').value || null,
+      });
+    } else {
+      // Para criar, precisa de fornecedor_id — busca pelo nome ou usa id=1
+      const fornecedores = await APP.api('GET', '/fornecedores').catch(() => []);
+      const forn = fornecedores.find(f =>
+        f.razao_social.toLowerCase().includes(fornecedor.toLowerCase())
+      );
+      await APP.api('POST', '/contratos', {
+        numero, titulo,
+        fornecedor_id: forn ? forn.id : 1,
+        valor_total: parseFloat(valor),
+        valor_mensal: parseFloat(document.getElementById('fValorMensal').value) || null,
+        data_inicio: inicio, data_fim: fim,
+        status: document.getElementById('fStatus').value,
+        observacoes: document.getElementById('fObs').value || null,
+      });
+    }
+    APP.fecharModal('modal');
+    APP.toast(editId ? 'Contrato atualizado!' : 'Contrato cadastrado!');
+    await carregar();
+  } catch(e) {
+    // fallback localStorage
+    const obj = {
+      id:           editId || Date.now().toString(),
+      numero, titulo, fornecedor, inicio, fim,
+      valor_total:  parseFloat(valor) || 0,
+      valor:        parseFloat(valor) || 0,
+      valor_mensal: parseFloat(document.getElementById('fValorMensal').value) || 0,
+      obs:          document.getElementById('fObs').value,
+      observacoes:  document.getElementById('fObs').value,
+      status:       document.getElementById('fStatus').value,
+      total_medido: editId ? (dados.find(x=>String(x.id)===String(editId))?.total_medido||0) : 0,
+      saldo:        parseFloat(valor) || 0,
+    };
+    if (editId) { dados = dados.map(d => String(d.id)===String(editId) ? {...d,...obj} : d); }
+    else        { dados.unshift(obj); }
+    localStorage.setItem('uen300_contratos', JSON.stringify(dados));
+    APP.fecharModal('modal');
+    APP.toast(editId ? 'Contrato atualizado!' : 'Contrato cadastrado!');
+    filtrar();
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Salvar';
+  }
+});
+
+// Excluir
+async function excluir(id) {
+  const c = dados.find(x => String(x.id) === String(id));
+  if (!confirm(`Excluir o contrato "${c?.numero}"?\n\nAtenção: contratos com medições não podem ser excluídos.`)) return;
+  try {
+    await APP.api('DELETE', '/contratos/' + id);
+    APP.toast('Contrato removido.', 'error');
+    await carregar();
+  } catch(e) {
+    if (e.message.includes('medicoes') || e.message.includes('vinculad')) {
+      APP.toast('Este contrato possui medições vinculadas e não pode ser excluído.', 'error');
+    } else {
+      dados = dados.filter(x => String(x.id) !== String(id));
+      localStorage.setItem('uen300_contratos', JSON.stringify(dados));
+      filtrar();
+      APP.toast('Contrato removido.', 'error');
+    }
+  }
+}
+
+carregar();
+</script>
+</body>
+</html>

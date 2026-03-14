@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Veículos | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra"/>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">DIEFRA</div>
+        <div class="sidebar-brand-sub">UEN300</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Principal</span>
+      <a href="inicio.html"      class="nav-item" data-page="inicio">      <span class="nav-icon">🏠</span> Início</a>
+      <span class="nav-section-label">Gestão</span>
+      <a href="contratos.html"   class="nav-item" data-page="contratos">   <span class="nav-icon">📄</span> Contratos</a>
+      <a href="medicoes.html"    class="nav-item" data-page="medicoes">    <span class="nav-icon">📐</span> Medições</a>
+      <a href="veiculos.html"    class="nav-item" data-page="veiculos">    <span class="nav-icon">🚗</span> Veículos</a>
+      <a href="suprimentos.html" class="nav-item" data-page="suprimentos"> <span class="nav-icon">📦</span> Suprimentos</a>
+      <span class="nav-section-label">Administração</span>
+      <a href="usuarios.html"    class="nav-item" data-page="usuarios">    <span class="nav-icon">👥</span> Usuários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebarAvatar">U</div>
+        <div><div class="sidebar-user-name" id="sidebarNome">Usuário</div><div class="sidebar-user-role">UEN300</div></div>
+      </div>
+      <button class="btn-logout" id="btnLogout">⬅ Sair do sistema</button>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div><div class="page-eyebrow">Gestão · UEN300</div><div class="page-title">Veículos</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" id="btnNovo">+ Novo Veículo</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="metrics-row" style="margin-bottom:24px">
+        <div class="metric-card mc-green">
+          <div class="metric-icon-wrap">✅</div>
+          <div><div class="metric-label">Disponíveis</div><div class="metric-value" id="cntDisp">—</div></div>
+        </div>
+        <div class="metric-card mc-blue">
+          <div class="metric-icon-wrap">🔧</div>
+          <div><div class="metric-label">Em Manutenção</div><div class="metric-value" id="cntMan">—</div></div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-icon-wrap">🚗</div>
+          <div><div class="metric-label">Em Uso</div><div class="metric-value" id="cntUso">—</div></div>
+        </div>
+        <div class="metric-card mc-purple">
+          <div class="metric-icon-wrap">📋</div>
+          <div><div class="metric-label">Total</div><div class="metric-value" id="cntTotal">—</div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="busca" placeholder="Buscar por placa, modelo ou responsável..."/>
+          </div>
+          <select class="form-select" id="filtroStatus" style="width:160px">
+            <option value="">Todos</option>
+            <option value="disponivel">Disponível</option>
+            <option value="em_uso">Em Uso</option>
+            <option value="manutencao">Manutenção</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Placa</th>
+                <th>Modelo</th>
+                <th>Ano</th>
+                <th>Responsável</th>
+                <th>KM Atual</th>
+                <th>Próx. Revisão</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Novo Veículo</h3>
+      <button class="modal-close" id="btnFechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fId"/>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Placa *</label>
+          <input class="form-input" id="fPlaca" placeholder="ABC-1234"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status *</label>
+          <select class="form-select" id="fStatus">
+            <option value="disponivel">Disponível</option>
+            <option value="em_uso">Em Uso</option>
+            <option value="manutencao">Manutenção</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Marca / Modelo *</label>
+          <input class="form-input" id="fModelo" placeholder="Toyota Hilux"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ano</label>
+          <input class="form-input" id="fAno" type="number" placeholder="2023"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cor</label>
+          <input class="form-input" id="fCor" placeholder="Branco"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">RENAVAM</label>
+          <input class="form-input" id="fRenavam" placeholder="00000000000"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">KM Atual</label>
+          <input class="form-input" id="fKm" type="number" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Próxima Revisão</label>
+          <input class="form-input" id="fRevisao" type="date"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Responsável</label>
+          <input class="form-input" id="fResponsavel" placeholder="Nome do responsável"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Observações</label>
+          <textarea class="form-textarea" id="fObs" placeholder="Informações adicionais..."></textarea>
+        </div>
+      </div>
+      <div class="form-error" id="formErro"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+      <button class="btn btn-primary"   id="btnSalvar">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+APP.initSidebar('veiculos');
+APP.initModal('modal', ['btnFechar','btnCancelar']);
+
+let dados = JSON.parse(localStorage.getItem('uen300_veiculos') || '[]');
+let editId = null;
+
+function salvarLocal() { localStorage.setItem('uen300_veiculos', JSON.stringify(dados)); }
+
+const statusLabel = { disponivel:'disponivel', em_uso:'pendente', manutencao:'encerrado' };
+
+function render(lista) {
+  const c = { disponivel:0, em_uso:0, manutencao:0 };
+  dados.forEach(d => { if (c[d.status] !== undefined) c[d.status]++; });
+  document.getElementById('cntDisp').textContent  = c.disponivel;
+  document.getElementById('cntMan').textContent   = c.manutencao;
+  document.getElementById('cntUso').textContent   = c.em_uso;
+  document.getElementById('cntTotal').textContent = dados.length;
+
+  const tb = document.getElementById('tbody');
+  if (!lista.length) {
+    tb.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">🚗</div><div class="empty-title">Nenhum veículo</div><div class="empty-sub">Clique em "+ Novo Veículo" para cadastrar</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = lista.map(v => `
+    <tr>
+      <td><strong style="font-family:var(--font-display);color:var(--accent)">${v.placa}</strong></td>
+      <td>${v.modelo}</td>
+      <td class="td-muted">${v.ano || '—'}</td>
+      <td class="td-muted">${v.responsavel || '—'}</td>
+      <td class="td-muted">${v.km ? Number(v.km).toLocaleString('pt-BR') + ' km' : '—'}</td>
+      <td class="td-muted">${APP.formatarData(v.revisao)}</td>
+      <td><span class="badge badge-${statusLabel[v.status]||'ativo'}">${v.status.replace('_',' ')}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editar('${v.id}')">✏</button>
+        <button class="btn btn-danger btn-sm" onclick="excluir('${v.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+function filtrar() {
+  const t = document.getElementById('busca').value.toLowerCase();
+  const s = document.getElementById('filtroStatus').value;
+  render(dados.filter(d =>
+    (!t || d.placa.toLowerCase().includes(t) || d.modelo.toLowerCase().includes(t) || (d.responsavel||'').toLowerCase().includes(t)) &&
+    (!s || d.status === s)
+  ));
+}
+
+document.getElementById('busca').addEventListener('input', filtrar);
+document.getElementById('filtroStatus').addEventListener('change', filtrar);
+
+document.getElementById('btnNovo').addEventListener('click', () => {
+  editId = null;
+  document.getElementById('modalTitulo').textContent = 'Novo Veículo';
+  ['fId','fPlaca','fModelo','fAno','fCor','fRenavam','fKm','fRevisao','fResponsavel','fObs'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('fStatus').value = 'disponivel';
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+});
+
+function editar(id) {
+  const v = dados.find(x => x.id === id);
+  if (!v) return;
+  editId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar Veículo';
+  document.getElementById('fId').value          = v.id;
+  document.getElementById('fPlaca').value       = v.placa;
+  document.getElementById('fModelo').value      = v.modelo;
+  document.getElementById('fAno').value         = v.ano || '';
+  document.getElementById('fCor').value         = v.cor || '';
+  document.getElementById('fRenavam').value     = v.renavam || '';
+  document.getElementById('fKm').value          = v.km || '';
+  document.getElementById('fRevisao').value     = v.revisao || '';
+  document.getElementById('fResponsavel').value = v.responsavel || '';
+  document.getElementById('fObs').value         = v.obs || '';
+  document.getElementById('fStatus').value      = v.status;
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+}
+
+document.getElementById('btnSalvar').addEventListener('click', () => {
+  const placa  = document.getElementById('fPlaca').value.trim();
+  const modelo = document.getElementById('fModelo').value.trim();
+  const erroEl = document.getElementById('formErro');
+  if (!placa || !modelo) { erroEl.textContent = 'Placa e modelo são obrigatórios.'; erroEl.classList.add('show'); return; }
+
+  const obj = {
+    id: editId || Date.now().toString(),
+    placa, modelo,
+    ano:         document.getElementById('fAno').value,
+    cor:         document.getElementById('fCor').value,
+    renavam:     document.getElementById('fRenavam').value,
+    km:          document.getElementById('fKm').value,
+    revisao:     document.getElementById('fRevisao').value,
+    responsavel: document.getElementById('fResponsavel').value,
+    obs:         document.getElementById('fObs').value,
+    status:      document.getElementById('fStatus').value,
+  };
+
+  if (editId) { dados = dados.map(d => d.id === editId ? obj : d); }
+  else { dados.unshift(obj); }
+  salvarLocal();
+  APP.fecharModal('modal');
+  APP.toast(editId ? 'Veículo atualizado!' : 'Veículo cadastrado!');
+  filtrar();
+});
+
+function excluir(id) {
+  const v = dados.find(x => x.id === id);
+  if (!confirm(`Excluir o veículo "${v?.placa}"?`)) return;
+  dados = dados.filter(x => x.id !== id);
+  salvarLocal(); filtrar();
+  APP.toast('Veículo removido.', 'error');
+}
+
+filtrar();
+</script>
+</body>
+</html>

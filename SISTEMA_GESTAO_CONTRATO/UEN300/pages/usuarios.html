@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Usuários | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+  <style>
+    /* ── AVATAR COLORIDO POR INICIAL ── */
+    .avatar { width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;flex-shrink:0;font-family:var(--font-display); }
+    .av-a{background:linear-gradient(135deg,#009c3b,#00c94f)}
+    .av-b{background:linear-gradient(135deg,#2196f3,#21cbf3)}
+    .av-c{background:linear-gradient(135deg,#9c27b0,#e040fb)}
+    .av-d{background:linear-gradient(135deg,#ff5722,#ff9800)}
+    .av-e{background:linear-gradient(135deg,#f44336,#e91e63)}
+    .av-f{background:linear-gradient(135deg,#00bcd4,#009688)}
+
+    /* ── CARD DE USUÁRIO (modo grade) ── */
+    .users-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; margin-top:8px; }
+
+    .user-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .user-card::before {
+      content:'';
+      position:absolute;
+      top:0;left:0;right:0;height:3px;
+      background: linear-gradient(90deg, var(--accent), #00c94f);
+      opacity:0;
+      transition: opacity 0.2s;
+    }
+    .user-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.3); border-color:rgba(0,156,59,0.3); }
+    .user-card:hover::before { opacity:1; }
+
+    .user-card-top { display:flex; align-items:center; gap:12px; }
+    .user-card-info { flex:1; min-width:0; }
+    .user-card-name { font-family:var(--font-display); font-weight:700; font-size:15px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-card-username { font-size:12px; color:var(--accent); font-weight:600; margin-top:2px; }
+
+    .user-card-email { font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:8px; border:1px solid var(--border); }
+    .user-card-email span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    .user-card-footer { display:flex; align-items:center; justify-content:space-between; }
+    .user-card-date { font-size:11px; color:var(--muted); }
+    .user-card-actions { display:flex; gap:6px; }
+
+    /* ── TOGGLE VISUALIZAÇÃO ── */
+    .view-toggle { display:flex; gap:6px; }
+    .btn-view { background:transparent; border:1px solid var(--border); border-radius:8px; padding:7px 12px; color:var(--muted); cursor:pointer; font-size:16px; transition:all 0.15s; }
+    .btn-view.active { background:rgba(0,156,59,0.15); border-color:var(--accent); color:var(--accent); }
+
+    /* ── CONTADOR ── */
+    .results-count { font-size:12px; color:var(--muted); margin-bottom:12px; }
+    .results-count strong { color:var(--accent); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align:center; padding:60px 20px; color:var(--muted); }
+    .empty-state .empty-icon { font-size:48px; margin-bottom:12px; opacity:0.4; }
+    .empty-state p { font-size:14px; }
+
+    /* ── LOADING SKELETON ── */
+    .skeleton { background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,0.06) 50%, var(--surface) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:8px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .sk-card { height:140px; border-radius:16px; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra" class="sidebar-logo-icon"/>
+      <div>
+        <span class="sidebar-brand">DIEFRA</span>
+        <span class="sidebar-sys">UEN300</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="contratos.html" class="nav-item"><span class="nav-icon">📄</span> Contratos</a>
+      <a href="medicoes.html"  class="nav-item"><span class="nav-icon">📐</span> Medições</a>
+      <a href="fornecedores.html" class="nav-item"><span class="nav-icon">🏢</span> Fornecedores</a>
+      <a href="usuarios.html" class="nav-item active"><span class="nav-icon">👥</span> Usuários</a>
+    </nav>
+    <button class="sidebar-logout" id="btnLogout"><span>⬅</span> Sair</button>
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">👥 Usuários</h1>
+        <p class="page-sub">Gerencie os acessos ao sistema UEN300</p>
+      </div>
+      <div class="topbar-user">
+        <span class="user-avatar" id="userAvatar">U</span>
+        <span class="user-name"   id="userName">Usuário</span>
+      </div>
+    </header>
+
+    <!-- Barra de ações -->
+    <section class="table-section" style="margin-bottom:20px;padding:16px 24px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+
+        <!-- Busca -->
+        <div style="flex:1;min-width:220px">
+          <input type="text" id="buscaUsuario"
+            placeholder="🔍  Buscar por nome, usuário ou e-mail..."
+            style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
+                   border-radius:10px;padding:10px 16px;color:var(--text);font-size:13.5px;
+                   font-family:var(--font-body);outline:none;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+
+        <!-- Toggle grade / lista -->
+        <div class="view-toggle">
+          <button class="btn-view active" id="btnGrade"    title="Grade">⊞</button>
+          <button class="btn-view"        id="btnLista"    title="Lista">☰</button>
+        </div>
+
+        <!-- Botão novo -->
+        <button class="btn-new" id="btnNovoUsuario">+ Novo Usuário</button>
+      </div>
+    </section>
+
+    <!-- Contador de resultados -->
+    <p class="results-count" id="resultsCount"></p>
+
+    <!-- ── VISUALIZAÇÃO GRADE ── -->
+    <div id="viewGrade">
+      <div class="users-grid" id="gradeUsuarios">
+        <!-- skeletons de loading -->
+        <div class="skeleton sk-card"></div>
+        <div class="skeleton sk-card"></div>
+        <div class="skeleton sk-card"></div>
+        <div class="skeleton sk-card"></div>
+      </div>
+    </div>
+
+    <!-- ── VISUALIZAÇÃO LISTA (tabela) ── -->
+    <div id="viewLista" style="display:none">
+      <section class="table-section">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Usuário</th>
+                <th>E-mail</th>
+                <th>Cadastrado em</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela">
+              <tr><td colspan="7" class="loading-row">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- ── MODAL CRIAR / EDITAR ── -->
+  <div class="modal-overlay" id="modalUsuario" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitulo">Novo Usuário</h3>
+        <button class="modal-close" id="btnFecharModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="modalId"/>
+
+        <div class="form-group">
+          <label>Nome completo</label>
+          <input type="text" id="modalNome" placeholder="Ex: João Silva"/>
+        </div>
+        <div class="form-group">
+          <label>Usuário</label>
+          <input type="text" id="modalUsuarioCampo" placeholder="Ex: joao.silva"/>
+        </div>
+        <div class="form-group" id="grupoSenha">
+          <label>Senha</label>
+          <input type="password" id="modalSenha" placeholder="Mínimo 6 caracteres"/>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" id="modalEmail" placeholder="joao@diefra.com.br"/>
+        </div>
+
+        <p class="modal-erro" id="modalErro"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" id="btnCancelar">Cancelar</button>
+        <button class="btn-salvar"   id="btnSalvar">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL DETALHES ── -->
+  <div class="modal-overlay" id="modalDetalhe" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Detalhes do Usuário</h3>
+        <button class="modal-close" id="btnFecharDetalhe">✕</button>
+      </div>
+      <div class="modal-body" id="detalheConteudo" style="gap:12px">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancelar" id="btnFecharDetalhe2">Fechar</button>
+        <button class="btn-salvar"   id="btnEditarDetalhe">✏ Editar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ============================================================
+  //  USUARIOS.JS — inline para facilitar
+  // ============================================================
+
+  const API_URL = 'http://localhost:3000/api';
+  const token         = localStorage.getItem('uen300_token');
+  const usuarioLogado = JSON.parse(localStorage.getItem('uen300_usuario') || '{}');
+
+  if (!token) window.location.href = '../index.html';
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+
+  document.getElementById('userName').textContent   = usuarioLogado.nome || 'Usuário';
+  document.getElementById('userAvatar').textContent = (usuarioLogado.nome || 'U')[0].toUpperCase();
+
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    localStorage.removeItem('uen300_token');
+    localStorage.removeItem('uen300_usuario');
+    window.location.href = '../index.html';
+  });
+
+  // ── CORES DO AVATAR ──────────────────────────────────────────
+  const cores = ['av-a','av-b','av-c','av-d','av-e','av-f'];
+  function corAvatar(nome) {
+    const idx = (nome.charCodeAt(0) || 0) % cores.length;
+    return cores[idx];
+  }
+
+  // ── TOGGLE GRADE / LISTA ─────────────────────────────────────
+  let modoVista = 'grade';
+
+  document.getElementById('btnGrade').addEventListener('click', () => {
+    modoVista = 'grade';
+    document.getElementById('viewGrade').style.display = '';
+    document.getElementById('viewLista').style.display = 'none';
+    document.getElementById('btnGrade').classList.add('active');
+    document.getElementById('btnLista').classList.remove('active');
+  });
+
+  document.getElementById('btnLista').addEventListener('click', () => {
+    modoVista = 'lista';
+    document.getElementById('viewGrade').style.display = 'none';
+    document.getElementById('viewLista').style.display = '';
+    document.getElementById('btnLista').classList.add('active');
+    document.getElementById('btnGrade').classList.remove('active');
+    renderLista(todosUsuarios);
+  });
+
+  // ── DADOS ────────────────────────────────────────────────────
+  let todosUsuarios = [];
+
+  async function carregarUsuarios() {
+    try {
+      const res = await fetch(`${API_URL}/usuarios`, { headers });
+
+      if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('uen300_token');
+        window.location.href = '../index.html';
+        return;
+      }
+
+      if (!res.ok) throw new Error('Erro ao carregar usuários.');
+
+      todosUsuarios = await res.json();
+      renderTudo(todosUsuarios);
+
+    } catch (err) {
+      document.getElementById('gradeUsuarios').innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:#ff6b6b">
+          ⚠ ${err.message}<br>
+          <small style="color:var(--muted)">Verifique se o servidor está rodando: npm run dev</small>
+        </div>`;
+    }
+  }
+
+  function renderTudo(lista) {
+    const count = document.getElementById('resultsCount');
+    count.innerHTML = `Exibindo <strong>${lista.length}</strong> usuário${lista.length !== 1 ? 's' : ''}`;
+
+    renderGrade(lista);
+    if (modoVista === 'lista') renderLista(lista);
+  }
+
+  // ── GRADE DE CARDS ───────────────────────────────────────────
+  function renderGrade(lista) {
+    const container = document.getElementById('gradeUsuarios');
+
+    if (!lista.length) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon">👥</div>
+          <p>Nenhum usuário encontrado.</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = lista.map(u => `
+      <div class="user-card">
+        <div class="user-card-top">
+          <div class="avatar ${corAvatar(u.nome)}">${u.nome[0].toUpperCase()}</div>
+          <div class="user-card-info">
+            <div class="user-card-name">${u.nome}</div>
+            <div class="user-card-username">@${u.usuario}</div>
+          </div>
+          <span class="badge badge-ativo" style="margin-left:auto;align-self:flex-start">Ativo</span>
+        </div>
+
+        <div class="user-card-email">
+          <span>✉</span>
+          <span>${u.email}</span>
+        </div>
+
+        <div class="user-card-footer">
+          <span class="user-card-date">
+            📅 ${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—'}
+          </span>
+          <div class="user-card-actions">
+            <button class="btn-acao" onclick="verDetalhe(${u.id})" title="Ver detalhes">👁</button>
+            <button class="btn-acao" onclick="abrirEdicao(${u.id})" title="Editar">✏</button>
+            <button class="btn-acao btn-excluir" onclick="confirmarDesativar(${u.id},'${u.nome.replace(/'/g,"\\'")}')" title="Remover">🗑</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── TABELA LISTA ─────────────────────────────────────────────
+  function renderLista(lista) {
+    const corpo = document.getElementById('corpoTabela');
+
+    if (!lista.length) {
+      corpo.innerHTML = `<tr><td colspan="7" class="loading-row">Nenhum usuário encontrado.</td></tr>`;
+      return;
+    }
+
+    corpo.innerHTML = lista.map((u, i) => `
+      <tr>
+        <td style="color:var(--muted);font-size:12px">${i + 1}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar ${corAvatar(u.nome)}" style="width:32px;height:32px;font-size:13px">
+              ${u.nome[0].toUpperCase()}
+            </div>
+            <span style="font-weight:600">${u.nome}</span>
+          </div>
+        </td>
+        <td style="color:var(--accent);font-weight:600">@${u.usuario}</td>
+        <td style="color:var(--muted)">${u.email}</td>
+        <td style="color:var(--muted);font-size:12px">
+          ${u.criado_em ? new Date(u.criado_em).toLocaleDateString('pt-BR') : '—'}
+        </td>
+        <td><span class="badge badge-ativo">Ativo</span></td>
+        <td>
+          <button class="btn-acao" onclick="verDetalhe(${u.id})">👁 Ver</button>
+          <button class="btn-acao" onclick="abrirEdicao(${u.id})">✏ Editar</button>
+          <button class="btn-acao btn-excluir" onclick="confirmarDesativar(${u.id},'${u.nome.replace(/'/g,"\\'")}')">🗑</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ── BUSCA ────────────────────────────────────────────────────
+  document.getElementById('buscaUsuario').addEventListener('input', (e) => {
+    const t = e.target.value.toLowerCase();
+    const filtrado = todosUsuarios.filter(u =>
+      u.nome.toLowerCase().includes(t)    ||
+      u.usuario.toLowerCase().includes(t) ||
+      u.email.toLowerCase().includes(t)
+    );
+    renderTudo(filtrado);
+  });
+
+  // ── MODAL DETALHES ───────────────────────────────────────────
+  let idDetalheAtual = null;
+
+  function verDetalhe(id) {
+    const u = todosUsuarios.find(x => x.id === id);
+    if (!u) return;
+    idDetalheAtual = id;
+
+    document.getElementById('detalheConteudo').innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+        <div class="avatar ${corAvatar(u.nome)}" style="width:56px;height:56px;font-size:22px">
+          ${u.nome[0].toUpperCase()}
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--text)">${u.nome}</div>
+          <div style="color:var(--accent);font-size:13px;font-weight:600">@${u.usuario}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">ID</div>
+          <div style="font-size:13px;color:var(--text)">${u.id}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Status</div>
+          <span class="badge badge-ativo">Ativo</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px;grid-column:1/-1">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">E-mail</div>
+          <div style="font-size:13px;color:var(--text)">${u.email}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Cadastrado em</div>
+          <div style="font-size:13px;color:var(--text)">${u.criado_em ? new Date(u.criado_em).toLocaleString('pt-BR') : '—'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">Atualizado em</div>
+          <div style="font-size:13px;color:var(--text)">${u.atualizado_em ? new Date(u.atualizado_em).toLocaleString('pt-BR') : '—'}</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('modalDetalhe').style.display = 'flex';
+  }
+
+  document.getElementById('btnFecharDetalhe').addEventListener('click',  () => { document.getElementById('modalDetalhe').style.display = 'none'; });
+  document.getElementById('btnFecharDetalhe2').addEventListener('click', () => { document.getElementById('modalDetalhe').style.display = 'none'; });
+  document.getElementById('btnEditarDetalhe').addEventListener('click',  () => { document.getElementById('modalDetalhe').style.display = 'none'; abrirEdicao(idDetalheAtual); });
+
+  // ── MODAL CRIAR / EDITAR ─────────────────────────────────────
+  const modal      = document.getElementById('modalUsuario');
+  const grupoSenha = document.getElementById('grupoSenha');
+
+  function abrirModal() { modal.style.display = 'flex'; document.getElementById('modalErro').textContent = ''; }
+
+  function fecharModal() {
+    modal.style.display = 'none';
+    ['modalId','modalNome','modalUsuarioCampo','modalSenha','modalEmail'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('modalErro').textContent = '';
+  }
+
+  document.getElementById('btnNovoUsuario').addEventListener('click', () => {
+    document.getElementById('modalTitulo').textContent = 'Novo Usuário';
+    grupoSenha.style.display = 'flex';
+    fecharModal();
+    abrirModal();
+  });
+
+  function abrirEdicao(id) {
+    const u = todosUsuarios.find(x => x.id === id);
+    if (!u) return;
+    document.getElementById('modalTitulo').textContent     = 'Editar Usuário';
+    document.getElementById('modalId').value               = u.id;
+    document.getElementById('modalNome').value             = u.nome;
+    document.getElementById('modalUsuarioCampo').value     = u.usuario;
+    document.getElementById('modalEmail').value            = u.email;
+    grupoSenha.style.display = 'none';
+    abrirModal();
+  }
+
+  document.getElementById('btnFecharModal').addEventListener('click', fecharModal);
+  document.getElementById('btnCancelar').addEventListener('click', fecharModal);
+  modal.addEventListener('click', e => { if (e.target === modal) fecharModal(); });
+
+  document.getElementById('btnSalvar').addEventListener('click', async () => {
+    const id      = document.getElementById('modalId').value;
+    const nome    = document.getElementById('modalNome').value.trim();
+    const usuario = document.getElementById('modalUsuarioCampo').value.trim();
+    const email   = document.getElementById('modalEmail').value.trim();
+    const senha   = document.getElementById('modalSenha').value.trim();
+    const erroEl  = document.getElementById('modalErro');
+
+    if (!nome || !usuario || !email) { erroEl.textContent = 'Nome, usuário e e-mail são obrigatórios.'; return; }
+    if (!id && !senha)               { erroEl.textContent = 'Informe uma senha.'; return; }
+
+    const btnSalvar = document.getElementById('btnSalvar');
+    btnSalvar.textContent = 'Salvando...';
+    btnSalvar.disabled    = true;
+
+    try {
+      let res;
+      if (id) {
+        res = await fetch(`${API_URL}/usuarios/${id}`, {
+          method: 'PUT', headers,
+          body: JSON.stringify({ nome, usuario, email })
+        });
+      } else {
+        res = await fetch(`${API_URL}/auth/registro`, {
+          method: 'POST', headers,
+          body: JSON.stringify({ nome, usuario, senha, email })
+        });
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.erro || 'Erro ao salvar.');
+      fecharModal();
+      carregarUsuarios();
+    } catch (err) {
+      erroEl.textContent = err.message;
+    } finally {
+      btnSalvar.textContent = '💾 Salvar';
+      btnSalvar.disabled    = false;
+    }
+  });
+
+  // ── DESATIVAR ────────────────────────────────────────────────
+  async function confirmarDesativar(id, nome) {
+    if (!confirm(`Deseja remover o usuário "${nome}"?`)) return;
+    try {
+      const res = await fetch(`${API_URL}/usuarios/${id}`, { method: 'DELETE', headers });
+      if (!res.ok) throw new Error('Erro ao remover.');
+      carregarUsuarios();
+    } catch (err) { alert(err.message); }
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────
+  carregarUsuarios();
+  </script>
+
+</body>
+</html>

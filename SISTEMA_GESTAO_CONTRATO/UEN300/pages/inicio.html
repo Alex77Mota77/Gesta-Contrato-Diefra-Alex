@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Início | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+  <style>
+    /* ── WELCOME HERO ── */
+    .welcome-hero {
+      background: linear-gradient(135deg, #0e1f12 0%, #0a1a0d 50%, #0a0a0f 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--r-2xl);
+      padding: 40px 44px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-hero::before {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,200,83,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .welcome-hero::after {
+      content: '';
+      position: absolute; bottom: -40px; left: 30%;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,156,59,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .welcome-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .welcome-title {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3vw, 38px); font-weight: 800;
+      color: #fff; line-height: 1.15; margin-bottom: 12px;
+      position: relative; z-index: 1;
+    }
+    .welcome-title span { color: var(--accent); }
+    .welcome-sub {
+      font-size: 14px; color: var(--text2);
+      max-width: 500px; line-height: 1.7;
+      position: relative; z-index: 1;
+    }
+    .welcome-meta {
+      display: flex; gap: 24px; margin-top: 28px;
+      position: relative; z-index: 1;
+    }
+    .welcome-meta-item { display: flex; flex-direction: column; gap: 3px; }
+    .welcome-meta-label { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+    .welcome-meta-value { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); }
+
+    /* ── ATALHOS ── */
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .shortcut-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 24px;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex; flex-direction: column; gap: 16px;
+      transition: all 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .shortcut-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--card-hover-bg, transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .shortcut-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.35); border-color: var(--card-border, var(--border2)); }
+    .shortcut-card:hover::before { opacity: 1; }
+
+    .shortcut-icon {
+      width: 52px; height: 52px;
+      border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .shortcut-name {
+      font-family: var(--font-display);
+      font-size: 16px; font-weight: 700; color: var(--text);
+      margin-bottom: 4px;
+    }
+    .shortcut-desc { font-size: 12.5px; color: var(--text2); line-height: 1.5; }
+    .shortcut-arrow {
+      margin-top: auto;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+      opacity: 0; transition: opacity 0.2s; transform: translateX(-4px);
+      transition: all 0.2s;
+    }
+    .shortcut-card:hover .shortcut-arrow { opacity: 1; transform: translateX(0); }
+
+    /* Cores */
+    .sc-green  { --card-border: rgba(0,200,83,0.3); --card-hover-bg: rgba(0,200,83,0.04); }
+    .sc-green  .shortcut-icon  { background: rgba(0,200,83,0.12); }
+    .sc-green  .shortcut-arrow { color: var(--accent); }
+
+    .sc-blue   { --card-border: rgba(61,155,233,0.3); --card-hover-bg: rgba(61,155,233,0.04); }
+    .sc-blue   .shortcut-icon  { background: rgba(61,155,233,0.12); }
+    .sc-blue   .shortcut-arrow { color: var(--info); }
+
+    .sc-yellow { --card-border: rgba(255,165,2,0.3); --card-hover-bg: rgba(255,165,2,0.04); }
+    .sc-yellow .shortcut-icon  { background: rgba(255,165,2,0.12); }
+    .sc-yellow .shortcut-arrow { color: var(--warning); }
+
+    .sc-purple { --card-border: rgba(156,39,176,0.3); --card-hover-bg: rgba(156,39,176,0.04); }
+    .sc-purple .shortcut-icon  { background: rgba(156,39,176,0.12); }
+    .sc-purple .shortcut-arrow { color: #ce93d8; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra"/>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">DIEFRA</div>
+        <div class="sidebar-brand-sub">UEN300</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Principal</span>
+
+      <a href="inicio.html" class="nav-item" data-page="inicio">
+        <span class="nav-icon">🏠</span> Início
+      </a>
+
+      <span class="nav-section-label">Gestão</span>
+
+      <a href="contratos.html" class="nav-item" data-page="contratos">
+        <span class="nav-icon">📄</span> Contratos
+      </a>
+      <a href="medicoes.html"    class="nav-item" data-page="medicoes">    <span class="nav-icon">📐</span> Medições</a>
+      <a href="veiculos.html" class="nav-item" data-page="veiculos">
+        <span class="nav-icon">🚗</span> Veículos
+      </a>
+      <a href="suprimentos.html" class="nav-item" data-page="suprimentos">
+        <span class="nav-icon">📦</span> Suprimentos
+      </a>
+
+      <span class="nav-section-label">Administração</span>
+
+      <a href="usuarios.html" class="nav-item" data-page="usuarios">
+        <span class="nav-icon">👥</span> Usuários
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebarAvatar">U</div>
+        <div>
+          <div class="sidebar-user-name" id="sidebarNome">Usuário</div>
+          <div class="sidebar-user-role">UEN300</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout">⬅ Sair do sistema</button>
+    </div>
+  </aside>
+
+  <!-- ═══ CONTEÚDO ═══ -->
+  <div class="main-wrap">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div>
+          <div class="page-eyebrow">UEN300 — Gestão de Contratos</div>
+          <div class="page-title">Início</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-badge" id="badgeData"></span>
+      </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <div class="page-content">
+
+      <!-- Hero de boas-vindas -->
+      <div class="welcome-hero">
+        <div class="welcome-eyebrow">Sistema de Gestão · Diefra</div>
+        <h1 class="welcome-title">Bem-vindo de volta,<br/><span id="heroNome">Usuário</span>!</h1>
+        <p class="welcome-sub">Gerencie contratos, veículos, suprimentos e usuários do sistema UEN300 em um só lugar.</p>
+        <div class="welcome-meta">
+          <div class="welcome-meta-item">
+            <span class="welcome-meta-label">Hoje</span>
+            <span class="welcome-meta-value" id="dataHoje">—</span>
+          </div>
+          <div class="welcome-meta-item">
+            <span class="welcome-meta-label">Unidade</span>
+            <span class="welcome-meta-value">UEN300</span>
+          </div>
+          <div class="welcome-meta-item">
+            <span class="welcome-meta-label">Versão</span>
+            <span class="welcome-meta-value">1.0.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cards de métricas -->
+      <div class="metrics-row">
+        <div class="metric-card mc-green" onclick="window.location.href='contratos.html'">
+          <div class="metric-icon-wrap">📄</div>
+          <div>
+            <div class="metric-label">Contratos Ativos</div>
+            <div class="metric-value" id="metContratos">—</div>
+          </div>
+        </div>
+        <div class="metric-card mc-blue" onclick="window.location.href='veiculos.html'">
+          <div class="metric-icon-wrap">🚗</div>
+          <div>
+            <div class="metric-label">Veículos</div>
+            <div class="metric-value" id="metVeiculos">—</div>
+          </div>
+        </div>
+        <div class="metric-card mc-yellow" onclick="window.location.href='suprimentos.html'">
+          <div class="metric-icon-wrap">📦</div>
+          <div>
+            <div class="metric-label">Suprimentos</div>
+            <div class="metric-value" id="metSuprimentos">—</div>
+          </div>
+        </div>
+        <div class="metric-card mc-purple" onclick="window.location.href='usuarios.html'">
+          <div class="metric-icon-wrap">👥</div>
+          <div>
+            <div class="metric-label">Usuários</div>
+            <div class="metric-value" id="metUsuarios">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Atalhos -->
+      <div class="shortcuts-grid">
+
+        <a href="contratos.html" class="shortcut-card sc-green">
+          <div class="shortcut-icon">📄</div>
+          <div>
+            <div class="shortcut-name">Contratos</div>
+            <div class="shortcut-desc">Gerencie contratos, aditivos, vencimentos e fornecedores.</div>
+          </div>
+          <div class="shortcut-arrow">Acessar →</div>
+        </a>
+
+        <a href="veiculos.html" class="shortcut-card sc-blue">
+          <div class="shortcut-icon">🚗</div>
+          <div>
+            <div class="shortcut-name">Veículos</div>
+            <div class="shortcut-desc">Controle a frota, manutenções, documentações e quilometragem.</div>
+          </div>
+          <div class="shortcut-arrow">Acessar →</div>
+        </a>
+
+        <a href="suprimentos.html" class="shortcut-card sc-yellow">
+          <div class="shortcut-icon">📦</div>
+          <div>
+            <div class="shortcut-name">Suprimentos</div>
+            <div class="shortcut-desc">Acompanhe estoque, pedidos, entregas e requisições de materiais.</div>
+          </div>
+          <div class="shortcut-arrow">Acessar →</div>
+        </a>
+
+        <a href="usuarios.html" class="shortcut-card sc-purple">
+          <div class="shortcut-icon">👥</div>
+          <div>
+            <div class="shortcut-name">Usuários</div>
+            <div class="shortcut-desc">Gerencie acessos, cadastros e permissões do sistema.</div>
+          </div>
+          <div class="shortcut-arrow">Acessar →</div>
+        </a>
+
+      </div>
+
+    </div><!-- fim page-content -->
+  </div><!-- fim main-wrap -->
+</div><!-- fim app-layout -->
+
+<div id="toast-container"></div>
+
+<script src="../js/app.js"></script>
+<script>
+  APP.initSidebar('inicio');
+
+  // Data de hoje
+  const hoje = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+  document.getElementById('dataHoje').textContent = hoje;
+  document.getElementById('badgeData').textContent = new Date().toLocaleDateString('pt-BR');
+
+  // Nome no hero
+  const u = APP.getUsuario();
+  document.getElementById('heroNome').textContent = u.nome ? u.nome.split(' ')[0] : 'Usuário';
+
+  // Métricas — carrega usuários do banco
+  (async () => {
+    try {
+      const usuarios = await APP.api('GET', '/usuarios');
+      if (Array.isArray(usuarios)) document.getElementById('metUsuarios').textContent = usuarios.length;
+    } catch {}
+    // Contratos, veículos e suprimentos serão preenchidos quando as tabelas existirem
+    document.getElementById('metContratos').textContent   = '—';
+    document.getElementById('metVeiculos').textContent    = '—';
+    document.getElementById('metSuprimentos').textContent = '—';
+  })();
+</script>
+</body>
+</html>

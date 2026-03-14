@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UEN300 — Suprimentos | Diefra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/app.css"/>
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="../assets/svg/logo-icon.svg" alt="Diefra"/>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">DIEFRA</div>
+        <div class="sidebar-brand-sub">UEN300</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Principal</span>
+      <a href="inicio.html"      class="nav-item" data-page="inicio">      <span class="nav-icon">🏠</span> Início</a>
+      <span class="nav-section-label">Gestão</span>
+      <a href="contratos.html"   class="nav-item" data-page="contratos">   <span class="nav-icon">📄</span> Contratos</a>
+      <a href="medicoes.html"    class="nav-item" data-page="medicoes">    <span class="nav-icon">📐</span> Medições</a>
+      <a href="veiculos.html"    class="nav-item" data-page="veiculos">    <span class="nav-icon">🚗</span> Veículos</a>
+      <a href="suprimentos.html" class="nav-item" data-page="suprimentos"> <span class="nav-icon">📦</span> Suprimentos</a>
+      <span class="nav-section-label">Administração</span>
+      <a href="usuarios.html"    class="nav-item" data-page="usuarios">    <span class="nav-icon">👥</span> Usuários</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebarAvatar">U</div>
+        <div><div class="sidebar-user-name" id="sidebarNome">Usuário</div><div class="sidebar-user-role">UEN300</div></div>
+      </div>
+      <button class="btn-logout" id="btnLogout">⬅ Sair do sistema</button>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div><div class="page-eyebrow">Gestão · UEN300</div><div class="page-title">Suprimentos</div></div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" id="btnNovo">+ Novo Item</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <div class="metrics-row" style="margin-bottom:24px">
+        <div class="metric-card mc-green">
+          <div class="metric-icon-wrap">✅</div>
+          <div><div class="metric-label">Em Estoque</div><div class="metric-value" id="cntOk">—</div></div>
+        </div>
+        <div class="metric-card mc-yellow">
+          <div class="metric-icon-wrap">⚠</div>
+          <div><div class="metric-label">Estoque Baixo</div><div class="metric-value" id="cntBaixo">—</div></div>
+        </div>
+        <div class="metric-card mc-red">
+          <div class="metric-icon-wrap">❌</div>
+          <div><div class="metric-label">Sem Estoque</div><div class="metric-value" id="cntZero">—</div></div>
+        </div>
+        <div class="metric-card mc-blue">
+          <div class="metric-icon-wrap">📦</div>
+          <div><div class="metric-label">Total Itens</div><div class="metric-value" id="cntTotal">—</div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="search-bar">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="busca" placeholder="Buscar por nome, código ou categoria..."/>
+          </div>
+          <select class="form-select" id="filtroCategoria" style="width:180px">
+            <option value="">Todas as categorias</option>
+            <option value="material">Material</option>
+            <option value="equipamento">Equipamento</option>
+            <option value="epi">EPI</option>
+            <option value="escritorio">Escritório</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nome do Item</th>
+                <th>Categoria</th>
+                <th>Qtd. Estoque</th>
+                <th>Qtd. Mínima</th>
+                <th>Unidade</th>
+                <th>Fornecedor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted)">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Novo Item</h3>
+      <button class="modal-close" id="btnFechar">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fId"/>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Código *</label>
+          <input class="form-input" id="fCodigo" placeholder="SUP-001"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select class="form-select" id="fCategoria">
+            <option value="material">Material</option>
+            <option value="equipamento">Equipamento</option>
+            <option value="epi">EPI</option>
+            <option value="escritorio">Escritório</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Nome do Item *</label>
+          <input class="form-input" id="fNome" placeholder="Ex: Capacete de Segurança"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantidade em Estoque</label>
+          <input class="form-input" id="fQtd" type="number" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Quantidade Mínima</label>
+          <input class="form-input" id="fQtdMin" type="number" placeholder="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unidade de Medida</label>
+          <select class="form-select" id="fUnidade">
+            <option value="un">Unidade (un)</option>
+            <option value="kg">Quilograma (kg)</option>
+            <option value="lt">Litro (lt)</option>
+            <option value="mt">Metro (mt)</option>
+            <option value="cx">Caixa (cx)</option>
+            <option value="pc">Peça (pc)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor Unitário (R$)</label>
+          <input class="form-input" id="fValor" type="number" placeholder="0,00"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Fornecedor</label>
+          <input class="form-input" id="fFornecedor" placeholder="Nome do fornecedor"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Localização no Almoxarifado</label>
+          <input class="form-input" id="fLocal" placeholder="Ex: Prateleira A, Seção 3"/>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">Observações</label>
+          <textarea class="form-textarea" id="fObs" placeholder="Informações adicionais..."></textarea>
+        </div>
+      </div>
+      <div class="form-error" id="formErro"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="btnCancelar">Cancelar</button>
+      <button class="btn btn-primary"   id="btnSalvar">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/app.js"></script>
+<script>
+APP.initSidebar('suprimentos');
+APP.initModal('modal', ['btnFechar','btnCancelar']);
+
+let dados = JSON.parse(localStorage.getItem('uen300_suprimentos') || '[]');
+let editId = null;
+
+function salvarLocal() { localStorage.setItem('uen300_suprimentos', JSON.stringify(dados)); }
+
+function statusEstoque(qtd, min) {
+  if (qtd <= 0)        return { label: 'Sem estoque', badge: 'encerrado' };
+  if (qtd <= (min||0)) return { label: 'Estoque baixo', badge: 'pendente' };
+  return               { label: 'Em estoque', badge: 'ativo' };
+}
+
+function render(lista) {
+  const c = { ok:0, baixo:0, zero:0 };
+  dados.forEach(d => {
+    const s = statusEstoque(d.qtd, d.qtdMin);
+    if (s.badge === 'ativo')    c.ok++;
+    if (s.badge === 'pendente') c.baixo++;
+    if (s.badge === 'encerrado') c.zero++;
+  });
+  document.getElementById('cntOk').textContent    = c.ok;
+  document.getElementById('cntBaixo').textContent = c.baixo;
+  document.getElementById('cntZero').textContent  = c.zero;
+  document.getElementById('cntTotal').textContent = dados.length;
+
+  const tb = document.getElementById('tbody');
+  if (!lista.length) {
+    tb.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Nenhum item</div><div class="empty-sub">Clique em "+ Novo Item" para cadastrar</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = lista.map(s => {
+    const st = statusEstoque(Number(s.qtd), Number(s.qtdMin));
+    return `<tr>
+      <td><strong style="font-family:var(--font-display);color:var(--accent)">${s.codigo}</strong></td>
+      <td style="font-weight:500">${s.nome}</td>
+      <td class="td-muted">${s.categoria}</td>
+      <td style="font-weight:700;color:${Number(s.qtd)<=0?'var(--danger)':Number(s.qtd)<=(Number(s.qtdMin)||0)?'var(--warning)':'var(--text)'}">${s.qtd || 0}</td>
+      <td class="td-muted">${s.qtdMin || 0}</td>
+      <td class="td-muted">${s.unidade}</td>
+      <td class="td-muted">${s.fornecedor || '—'}</td>
+      <td><span class="badge badge-${st.badge}">${st.label}</span></td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editar('${s.id}')">✏</button>
+        <button class="btn btn-danger btn-sm" onclick="excluir('${s.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrar() {
+  const t = document.getElementById('busca').value.toLowerCase();
+  const c = document.getElementById('filtroCategoria').value;
+  render(dados.filter(d =>
+    (!t || d.codigo.toLowerCase().includes(t) || d.nome.toLowerCase().includes(t) || (d.fornecedor||'').toLowerCase().includes(t)) &&
+    (!c || d.categoria === c)
+  ));
+}
+
+document.getElementById('busca').addEventListener('input', filtrar);
+document.getElementById('filtroCategoria').addEventListener('change', filtrar);
+
+document.getElementById('btnNovo').addEventListener('click', () => {
+  editId = null;
+  document.getElementById('modalTitulo').textContent = 'Novo Item';
+  ['fId','fCodigo','fNome','fQtd','fQtdMin','fValor','fFornecedor','fLocal','fObs'].forEach(id => { document.getElementById(id).value=''; });
+  document.getElementById('fCategoria').value = 'material';
+  document.getElementById('fUnidade').value   = 'un';
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+});
+
+function editar(id) {
+  const s = dados.find(x => x.id === id);
+  if (!s) return;
+  editId = id;
+  document.getElementById('modalTitulo').textContent = 'Editar Item';
+  document.getElementById('fId').value         = s.id;
+  document.getElementById('fCodigo').value     = s.codigo;
+  document.getElementById('fNome').value       = s.nome;
+  document.getElementById('fCategoria').value  = s.categoria;
+  document.getElementById('fQtd').value        = s.qtd || 0;
+  document.getElementById('fQtdMin').value     = s.qtdMin || 0;
+  document.getElementById('fUnidade').value    = s.unidade || 'un';
+  document.getElementById('fValor').value      = s.valor || '';
+  document.getElementById('fFornecedor').value = s.fornecedor || '';
+  document.getElementById('fLocal').value      = s.local || '';
+  document.getElementById('fObs').value        = s.obs || '';
+  document.getElementById('formErro').classList.remove('show');
+  APP.abrirModal('modal');
+}
+
+document.getElementById('btnSalvar').addEventListener('click', () => {
+  const codigo = document.getElementById('fCodigo').value.trim();
+  const nome   = document.getElementById('fNome').value.trim();
+  const erroEl = document.getElementById('formErro');
+  if (!codigo || !nome) { erroEl.textContent = 'Código e nome são obrigatórios.'; erroEl.classList.add('show'); return; }
+
+  const obj = {
+    id: editId || Date.now().toString(),
+    codigo, nome,
+    categoria:  document.getElementById('fCategoria').value,
+    qtd:        document.getElementById('fQtd').value || 0,
+    qtdMin:     document.getElementById('fQtdMin').value || 0,
+    unidade:    document.getElementById('fUnidade').value,
+    valor:      document.getElementById('fValor').value,
+    fornecedor: document.getElementById('fFornecedor').value,
+    local:      document.getElementById('fLocal').value,
+    obs:        document.getElementById('fObs').value,
+  };
+
+  if (editId) { dados = dados.map(d => d.id === editId ? obj : d); }
+  else { dados.unshift(obj); }
+  salvarLocal();
+  APP.fecharModal('modal');
+  APP.toast(editId ? 'Item atualizado!' : 'Item cadastrado!');
+  filtrar();
+});
+
+function excluir(id) {
+  const s = dados.find(x => x.id === id);
+  if (!confirm(`Excluir "${s?.nome}"?`)) return;
+  dados = dados.filter(x => x.id !== id);
+  salvarLocal(); filtrar();
+  APP.toast('Item removido.', 'error');
+}
+
+filtrar();
+</script>
+</body>
+</html>
